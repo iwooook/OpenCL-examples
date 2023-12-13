@@ -58,7 +58,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <OpenCL/opencl.h>
+#include <CL/opencl.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -95,6 +95,7 @@ int main(int argc, char** argv)
     size_t global;                      // global domain size for our calculation
     size_t local;                       // local domain size for our calculation
 
+    cl_platform_id platform;            // platform id
     cl_device_id device_id;             // compute device id 
     cl_context context;                 // compute context
     cl_command_queue commands;          // compute command queue
@@ -104,6 +105,13 @@ int main(int argc, char** argv)
     cl_mem input;                       // device memory used for the input array
     cl_mem output;                      // device memory used for the output array
     
+    /* Identify a platform */
+    err = clGetPlatformIDs(1, &platform, NULL);
+    if(err < 0) {
+        perror("Couldn't identify a platform");
+        exit(1);
+    } 
+
     // Fill our data set with random float values
     //
     int i = 0;
@@ -114,7 +122,7 @@ int main(int argc, char** argv)
     // Connect to a compute device
     //
     int gpu = 1;
-    err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+    err = clGetDeviceIDs(platform, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
     if (err != CL_SUCCESS)
     {
         printf("Error: Failed to create a device group!\n");
